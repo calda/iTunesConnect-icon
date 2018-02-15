@@ -24,7 +24,7 @@ let downloadSemaphore = DispatchSemaphore(value: 0)
 
 let dataTask = URLSession.shared.dataTask(with: logoUrl) { data, _, error in
     defer {
-        downloadSemaphore.signal() // let the script terminate
+        downloadSemaphore.signal() // let the script continue
     }
     
     guard let imageData = data else {
@@ -32,26 +32,33 @@ let dataTask = URLSession.shared.dataTask(with: logoUrl) { data, _, error in
         Could not download apple-touch-logo.
         Error: \(error?.localizedDescription ?? "Unknown error")
         """)
-        return
+        exit(0)
     }
     
     guard NSImage(data: imageData) != nil else {
         print("apple-touch-logo no longer exists at expected url (\(logoUrl)")
-        return
+        exit(0)
     }
     
     do {
         try imageData.write(to: URL(fileURLWithPath: tildeExpandedPath))
-        print("Done!\n")
-        print("Restart Safari to reload the Touch Icon Cache.")
     } catch let error {
         print("""
         Could not save image to Safari Touch Icons Cache
         Error: \(error.localizedDescription)
         """)
+        exit(0)
     }
 }
 
 print("Downloading apple-touch-logo to Safari Touch Icons Cache....")
 dataTask.resume()
-downloadSemaphore.wait() // don't let the script terminate until the data task is finished
+downloadSemaphore.wait() // don't let the script continue until the data task is finished
+
+// lock the file
+do {
+    try FileManager.default.setAttributes([.immutable: true], ofItemAtPath: tildeExpandedPath)
+    print("Locked file to keep Safari from overwriting it.")
+} catch { }
+
+print("\nDone! Restart Safari to reload the Touch Icon Cache.")
