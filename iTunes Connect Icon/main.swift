@@ -11,11 +11,11 @@ import AppKit
 
 /// 81304FA8435E454D058C17536C6528B4 seems to be a unique ID that corresponds to itunesconnect.apple.com
 let iconPath = "~/Library/Safari/Touch Icons Cache/Images/81304FA8435E454D058C17536C6528B4.png"
-let tildaExpandedPath = NSString(string: iconPath).expandingTildeInPath
+let tildeExpandedPath = NSString(string: iconPath).expandingTildeInPath
 
 // delete the existing icon (seems to be a 32x32 favicon)
-if FileManager.default.isReadableFile(atPath: tildaExpandedPath) {
-    try? FileManager.default.removeItem(at: URL.init(fileURLWithPath: tildaExpandedPath))
+if FileManager.default.isReadableFile(atPath: tildeExpandedPath) {
+    try? FileManager.default.removeItem(at: URL.init(fileURLWithPath: tildeExpandedPath))
 }
 
 // download the apple-touch-logo
@@ -41,7 +41,7 @@ let dataTask = URLSession.shared.dataTask(with: logoUrl) { data, _, error in
     }
     
     do {
-        try imageData.write(to: URL(fileURLWithPath: tildaExpandedPath))
+        try imageData.write(to: URL(fileURLWithPath: tildeExpandedPath))
         print("Done!\n")
         print("Restart Safari to reload the Touch Icon Cache.")
     } catch let error {
