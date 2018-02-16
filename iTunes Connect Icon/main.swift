@@ -8,6 +8,7 @@
 
 import Foundation
 import AppKit
+import SQLite3
 
 /// 81304FA8435E454D058C17536C6528B4 seems to be a unique ID that corresponds to itunesconnect.apple.com
 let iconPath = "~/Library/Safari/Touch Icons Cache/Images/81304FA8435E454D058C17536C6528B4.png"
@@ -55,10 +56,23 @@ print("Downloading apple-touch-logo to Safari Touch Icons Cache....")
 dataTask.resume()
 downloadSemaphore.wait() // don't let the script continue until the data task is finished
 
-// lock the file
-do {
-    try FileManager.default.setAttributes([.immutable: true], ofItemAtPath: tildeExpandedPath)
-    print("Locked file to keep Safari from overwriting it.")
-} catch { }
+// update the SQLite database to keep Safari from trying to rerequest the apple-touch-icon
+let databasePath = "~/Library/Safari/Touch Icons Cache/TouchIconCacheSettings.db"
+let tildeExpandedDatabasePath = NSString(string: databasePath).expandingTildeInPath
+
+var db: OpaquePointer? = nil
+if sqlite3_open(tildeExpandedDatabasePath, &db) == SQLITE_OK {
+    var errorPointer: UnsafeMutablePointer<Int8>?
+    if sqlite3_exec(db, "UPDATE cache_settings SET last_request_date = 9999999999 WHERE host = 'itunesconnect.apple.com'", nil, nil, &errorPointer) == SQLITE_OK {
+        print("Updated TouchIconCacheSettings.db to prevent Safari from attempting to rerequest an apple-touch-icon.")
+    } else if let errorPointer = errorPointer {
+        print("""
+            Could not udate TouchIconCacheSettings.db. Safari may attempt to rerequest a new apple-touch-icon in the future.
+            Error: \(String(cString: errorPointer))
+            """)
+        exit(0)
+    }
+    sqlite3_close(db)
+}
 
 print("\nDone! Restart Safari to reload the Touch Icon Cache.")
