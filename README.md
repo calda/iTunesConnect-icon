@@ -12,7 +12,7 @@ Script that adds an apple-touch-icon for iTunes Connect to Safari's Icon Cache
 You can download and run the `itc-icon` script by pasting this into your terminal:
 
 ```you
-echo "Downloading..." && curl -sL https://github.com/calda/iTunesConnect-icon/raw/master/itc-icon --output itc-icon && echo "Need sudo to execute script (sudo chmod 777 itc-icon && itc-icon):" && sudo chmod 777 itc-icon && ./itc-icon
+echo "Downloading..." && curl -sL https://github.com/calda/iTunesConnect-icon/raw/master/itc-icon --output itc-icon && echo "Need sudo to execute script (sudo chmod 777 itc-icon && itc-icon):" && sudo chmod 777 itc-icon && ./itc-icon && rm itc-icon
 ```
 
 _Expanded script:_
@@ -22,6 +22,7 @@ curl -sL https://github.com/calda/iTunesConnect-icon/raw/master/itc-icon --outpu
 echo "Need sudo to execute script (sudo chmod 777 itc-icon && itc-icon):"
 sudo chmod 777 itc-icon
 ./itc-icon
+rm itc-icon
 ```
 
 If you want to compile it from source yourself (`main.swift`), just download and run the Xcode project.
